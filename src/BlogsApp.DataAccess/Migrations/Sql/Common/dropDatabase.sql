@@ -1,0 +1,1 @@
+﻿EXEC ('DROP DATABASE ' + @DatabaseName)

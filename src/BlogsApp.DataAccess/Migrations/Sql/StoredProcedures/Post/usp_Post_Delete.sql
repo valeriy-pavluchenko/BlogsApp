@@ -1,0 +1,15 @@
+﻿IF NOT EXISTS (SELECT 1 FROM information_schema.Routines WHERE ROUTINE_NAME = 'usp_Post_Delete' AND ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_SCHEMA = 'dbo')
+BEGIN
+	EXEC('CREATE PROCEDURE usp_Post_Delete as BEGIN SET NOCOUNT ON; END')
+END
+GO 
+
+ALTER PROCEDURE usp_Post_Delete
+	@PostId int
+AS
+BEGIN
+	DELETE FROM
+		Post
+	WHERE
+		PostId = @PostId
+END
