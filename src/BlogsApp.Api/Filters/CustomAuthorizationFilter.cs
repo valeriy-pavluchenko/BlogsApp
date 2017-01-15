@@ -86,7 +86,6 @@ namespace BlogsApp.Api.Filters
             //                new Claim(ClaimTypes.Role, roles[0], ClaimValueTypes.String)
             //            }, authScheme, ClaimTypes.NameIdentifier, ClaimTypes.Role));
 
-
             if (!context.HttpContext.User.Identity.IsAuthenticated)
             {
                 throw new UnauthorizedAccessException();

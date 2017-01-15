@@ -128,7 +128,8 @@ namespace BlogsApp.Api.Controllers
             var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
             var encodedJwt = jwtSecurityTokenHandler.WriteToken(jwt);
 
-            return encodedJwt;
+            var bearerToken = $"Bearer {encodedJwt}";
+            return bearerToken;
         }
 
         /// <summary>
@@ -139,7 +140,8 @@ namespace BlogsApp.Api.Controllers
         [Produces(typeof(void))]
         public IActionResult Logout()
         {
-            // if user logged in, clear token in headers or ser expiration date to now
+            // if user logged in, clear token in headers,
+            this.ControllerContext.HttpContext.Authentication.HttpContext.Request.Headers["Authorization"] = "";
             return Ok();
         }
     }

@@ -35,8 +35,7 @@ using Microsoft.IdentityModel.Tokens;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-
-using Swashbuckle.Swagger.Model;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace BlogsApp.Api
 {
@@ -98,13 +97,20 @@ namespace BlogsApp.Api
             
             services.AddSwaggerGen(options =>
             {
-                options.SingleApiVersion(new Info
+                options.SwaggerDoc("v1", new Info
                 {
-                    Version = "v1",
+                    Version = "1.0.0",
                     Title = "BlogsApp API",
                     Description = "Some ASP.NET Core Investigation",
                     TermsOfService = "None",
                     Contact = new Contact { Name = "Valeriy Pavluchenko", Email = "valeriy.pavluchenko@gmail.com", Url = "https://github.com/valeriy-pavluchenko" }
+                });
+                options.AddSecurityDefinition("JWT Bearer Token", new ApiKeyScheme
+                {
+                    Description = "JWT Bearer Token",
+                    Type = "apiKey",
+                    Name = "Authorization",
+                    In = "header"
                 });
                 options.DescribeAllEnumsAsStrings();
                 options.IncludeXmlComments(AppContext.BaseDirectory + "\\BlogsApp.Api.xml");
@@ -132,21 +138,28 @@ namespace BlogsApp.Api
         public void Configure(IApplicationBuilder app)
         {
             app.UseMiddleware<CustomExceptionHandlingMiddleware>();
+            app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseSwagger();
-            app.UseSwaggerUi();
+            app.UseSwaggerUi(config =>
+            {
+                config.SwaggerEndpoint("/swagger/v1/swagger.json", "BlogsApp API");
+                config.InjectOnCompleteJavaScript("js/scripts.js"); // path must be relative to wwwroot/swagger
+                config.InjectStylesheet("css/styles.css"); // path must be relative to wwwroot/swagger
+                config.ShowRequestHeaders();
+            });
 
             //app.UseDeveloperExceptionPage();
 
             #region Use JWT Tokens
 
             var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetAppSettings("SecretKey")));
-            
+
             var tokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = signingKey,
-                
+
                 ValidateIssuer = true,
                 ValidIssuer = _configuration.GetAppSettings("Issuer"),
 
@@ -195,8 +208,8 @@ namespace BlogsApp.Api
             {
                 throw new TokenValidationFailedException("User has been deactivated or deleted since last login time.");
             }
-            
-            return TaskCache.CompletedTask;
+
+            return Task.CompletedTask;
         }
 
         private void UpdateDatabaseToLatestVersion()
