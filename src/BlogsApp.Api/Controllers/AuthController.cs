@@ -140,8 +140,7 @@ namespace BlogsApp.Api.Controllers
         [Produces(typeof(void))]
         public IActionResult Logout()
         {
-            // if user logged in, clear token in headers,
-            this.ControllerContext.HttpContext.Authentication.HttpContext.Request.Headers["Authorization"] = "";
+            // if user logged in then unvalidate token
             return Ok();
         }
     }
